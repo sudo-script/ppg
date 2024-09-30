@@ -5,6 +5,7 @@ const startButton = document.getElementById('startButton');
 let mediaStream = null;
 let lastBeatTime = 0;
 let heartRate = 0;
+let analyzing = false;
 
 // Start video stream
 async function startVideo() {
@@ -23,7 +24,35 @@ function analyzeVideo() {
     canvas.width = width;
     canvas.height = height;
 
+    const flashEnabled = true; // Toggle flashlight
+    if (flashEnabled && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // Flashlight code might vary depending on device/browser support
+        const constraints = {
+            video: {
+                facingMode: 'environment',
+                torch: true // Request flashlight
+            }
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(stream => {
+                video.srcObject = stream;
+                analyzing = true;
+                captureFrames(context, width, height);
+            })
+            .catch(err => {
+                console.error("Error accessing camera:", err);
+            });
+    } else {
+        console.error("Flashlight not supported");
+    }
+}
+
+// Capture frames from video and analyze PPG
+function captureFrames(context, width, height) {
     setInterval(() => {
+        if (!analyzing) return;
+
         context.drawImage(video, 0, 0, width, height);
         const frame = context.getImageData(0, 0, width, height);
         const data = frame.data;
