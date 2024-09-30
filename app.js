@@ -52,6 +52,7 @@ function analyzeVideo() {
 }
 
 // Start monitoring on button click
-startButton.addEventListener('click', () => {
+startButton.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevent any default action
     startVideo();
 });
